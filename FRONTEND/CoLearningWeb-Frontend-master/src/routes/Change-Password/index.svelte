@@ -1,33 +1,18 @@
- -<script context="module">
-    export async function preload(page, session) {
-    //   if (session.user) {
-    //     this.redirect(302, `/`)
-    //   }
-    } 
- </script>
-
-
-
 
 <script >
   
 
     // import { onMount } from 'svelte';
     import { goto, stores } from "@sapper/app";
-    // import {validateCp, validateNp} from '@lib/validation.js'
     import ListErrors from '../_components/ListErrors.svelte';
     import UpdateField from '../_components/UpdateField.svelte'
     import * as api from 'api.js';
     
-    // import {validateRequired, validateEmail} from "@lib/validation";
-    
-    
-
+   
     const { session } = stores();
-    // const dispatch = createEventDispatcher()
-
-    let errors = null;
-     errors = 'Messages are displayed here';
+    
+   let errors = null;
+   errors = 'Messages are displayed here';
 
 
     let currentpassword = ''
@@ -35,46 +20,46 @@
     let confirmpassword =''
     // let valid = false
     // let fullName = '';
-    let messageType
+   
 
    
 
-$: current_passwordValid  = currentpassword
-$ :passwordValid = newpassword
-$ :passwordconfirm_password = passwordValid === confirmpassword
+// $: current_passwordValid  = currentpassword
+// $ :passwordValid = newpassword
+$ :passwordconfirm_password = newpassword === confirmpassword
 
-// $ :formIsValid = current_passwordValid && passwordValid && confirm_password
+// $ :formIsValid = current_passwordValid && passwordValid && passwordconfirm_password
+
+const Data = {
+       current_password:currentpassword,
+       new_password:newpassword,
+    //    confirm_password:passwordconfirm_password
+   };
 
  async function submit(event) {
-     
+         
  try {
+   const res =  api.put ( "user/change_password",Data
    
-    const Data = {
-        current_password:currentpassword,
-        new_password:newpassword
-    };
-
-    const res =  api.put ( "user/change_password",Data
-
-    ,$session.user.access_token 
-    );
-    if (res.status >= 400) {
-        errors = "warning"
-        return errors = res.errors
-    }
+   ,$session.user.access_token);
    
-      
-      currentpassword = ''
-      newpassword = ''
-      errors = "success"
-      
-    
+       if (res >= 400) {
+           
+           errors = "something went wrong"
+           }
+    else{
+     currentpassword = ''
+     newpassword = ''
+     confirmpassword= ''
+      errors = "Your password has been updated"
+    //  return errors 
+       }
+
 }catch(err){
-      console.log(err)
-      errors = "Occurred error!!"
+     console.log(err) 
+     errors = "Occurred error!!"
+    //  return errors = err.errors
 }
-
- }
      
 // function handleKeyDown(event) {
 //     if (formIsValid && event.keyCode === 13) {
@@ -83,7 +68,7 @@ $ :passwordconfirm_password = passwordValid === confirmpassword
 //   }
    
   
-   
+ }
            
  </script>
 
@@ -115,9 +100,10 @@ $ :passwordconfirm_password = passwordValid === confirmpassword
             {/if} -->
 
                 <form on:submit|preventDefault={submit}>
+                   
                     <fieldset class="form-group">
                         <UpdateField
-                            bind:updateValue ={current_passwordValid}
+                            bind:updateValue ={currentpassword}
                             iconClass="person-outline"
                             descText="Current password"
                             inputType="text"
@@ -125,7 +111,7 @@ $ :passwordconfirm_password = passwordValid === confirmpassword
                     </fieldset>
                     <fieldset class="form-group">
                         <UpdateField
-                            bind:updateValue={passwordValid}
+                            bind:updateValue={newpassword}
                             iconClass="person-outline"
                             descText="New Password"
                             inputType="text"
@@ -139,11 +125,18 @@ $ :passwordconfirm_password = passwordValid === confirmpassword
                             inputType="text"
                         />
                         
-                    <button class="btn btn-md btn-primary pull-xs-right"> 
-                          Changed Password
+                    <button class="btn btn-md btn-primary pull-xs-right"
+                    
+                    > 
+                        
+                        Changed Password
 					</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+
+
+ <!-- disabled={!formIsValid}  -->
